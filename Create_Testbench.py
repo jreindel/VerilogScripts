@@ -36,7 +36,7 @@ for i in range(len(line)):
     curLine = line[i].strip().split(' ') # strip white space, split by space
     if(curLine[0] == "module"): # module declaration start
         modStart = i
-        modName = curLine[1].strip('(')
+        modName = curLine[1].strip('(#')
     if(curLine[len(curLine)-1] == ");"): # module declaration end
         modEnd = i
         break
