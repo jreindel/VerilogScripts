@@ -31,9 +31,9 @@ module Ethernet_Frame_Builder_AXIS(
     input wire reset_n, // asyncronous active low reset
     
     // Header info
-    input wire [47:0] dMAC, // destination MAC
-    input wire [47:0] sMAC, // source MAC 
-    output reg [15:0] eType, // ethernet type. Should be 0x0800 for IPv4 
+    input  wire [47:0] dMAC, // destination MAC
+    input  wire [47:0] sMAC, // source MAC 
+    output reg  [15:0] eType, // ethernet type. Should be 0x0800 for IPv4 
 );
 ```
 Note that `input wire cclk` is all on one line. 
@@ -65,29 +65,6 @@ The above produces the following. Notice that the first comment `// Header info`
 ```
 
 The scripts dont always handle the use of /* comment */ comments well. Using this type of comment for port group titles or to commment out ports is not supported.
-
-
-White Space
----
-The scripts dont parse extra white space correctly.
-As an example, the following will not work correctly:
-```
-input  wire [63:0]  tx_axis_tdata,
-input  wire [7:0]   tx_axis_tkeep,
-input  wire         tx_axis_tvalid,
-output wire         tx_axis_tready,
-input  wire         tx_axis_tlast,
-input  wire         tx_axis_tuser, 
-```
-To fix this, remove the extra white space so there are single spaces or tabs seperating each item on a line, like this:
-```
-    input wire [63:0] tx_axis_tdata,
-    input wire [7:0] tx_axis_tkeep,
-    input wire tx_axis_tvalid,
-    output wire tx_axis_tready,
-    input wire tx_axis_tlast,
-    input wire tx_axis_tuser, 
-```
 
 
 Final Notes
