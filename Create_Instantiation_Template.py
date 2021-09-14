@@ -55,7 +55,8 @@ varName = []
 comment = []
 for i in range(modStart,modEnd+1):
     comLine = line[i].split('//') # Split Comments
-    curLine = re.split(", |,| |",comLine[0].strip()) # Divide port info
+    comLine[0] = re.sub(' +',' ',comLine[0])
+    curLine = re.split(", |,| ",comLine[0].strip()) # Divide port info
     l = i-modStart
     if(debug > 1): # verbose listing of divided line info
         print(curLine)
