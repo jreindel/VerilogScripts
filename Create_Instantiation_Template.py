@@ -34,6 +34,13 @@ modName = ""
 modStart = 0
 modEnd = 0
 for i in range(len(line)):
+    comLine = line[i].split('//')
+    if '[' in comLine[0]:
+            curLine = comLine[0].replace(']','[').split("[")
+            curLine = curLine[0] + '[' + curLine[1].replace(' ','') + ']' + curLine[2]
+            if len(comLine)==2:
+                curLine = curLine + '// ' + comLine[1]
+            line[i] = curLine
     curLine = line[i].strip().split(' ') # strip white space, split by space
     if(curLine[0] == "module"): # module declaration start
         modStart = i

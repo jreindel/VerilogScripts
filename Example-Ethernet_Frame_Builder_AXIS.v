@@ -25,9 +25,9 @@ module Ethernet_Frame_Builder_AXIS(
     input wire reset_n, // asyncronous active low reset
     
     // Header info
-    input wire [47:0] dMAC, // destination MAC
-    input wire [47:0] sMAC, // source MAC 
-    input wire [15:0] eType, // ethernet type. Should be 0x0800 for IPv4 
+    input wire [ 47 : 0 ] dMAC, // destination MAC
+    input wire [ 47 : 0 ] sMAC, // source MAC 
+    input wire [ 15 : 0 ] eType, // ethernet type. Should be 0x0800 for IPv4 
     
     // Slave Interface
     input wire [63:0] s_axis_tdata, // AXI-S slave input: transfer payload 
