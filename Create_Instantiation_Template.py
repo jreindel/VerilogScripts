@@ -55,6 +55,9 @@ if(debug):
     print("Port delcaration ends on line: ",modEnd+1)
 
 # Parse port declaration information from the file
+parName = []
+parVal = []
+parComment = []
 direction = []
 dataType = []
 size = []
@@ -64,11 +67,18 @@ for i in range(modStart,modEnd+1):
     comLine = line[i].split('//') # Split Comments
     comLine[0] = re.sub(' +',' ',comLine[0])
     curLine = re.split(", |,| ",comLine[0].strip()) # Divide port info
-    l = i-modStart
+#    l = i-modStart
     if(debug > 1): # verbose listing of divided line info
-        print(curLine)
+        print(str(i+1)+' '+str(curLine))
     if(curLine): # information on line besides comments
         for j in range(len(curLine)):
+            if(curLine[j]=="parameter"): # Locate parameter inputs
+                parName.append(curLine[1])
+                parVal.append(curLine[3])
+                if(len(comLine) > 1):
+                    parComment.append(comLine[1].strip())
+                else:
+                    parComment.append("")
             if(curLine[j]=="input" or curLine[j]=="output"): # Locate inputs and outputs to begin parsing
                 if(curLine[j+2][0] == "["): # multibit port
                     for k in range(3,len(curLine)-j):
@@ -106,7 +116,7 @@ for i in range(modStart,modEnd+1):
         
 # Verbose print of number of elements in each list
 if(debug >1): 
-    print("\ndirection: "+str(len(direction))+", dataType: "+str(len(dataType))+", size: "+str(len(size))+", varName: "+str(len(varName))+", comment: "+str(len(comment)))
+    print("\ndirection: "+str(len(direction))+", dataType: "+str(len(dataType))+", size: "+str(len(size))+", varName: "+str(len(varName))+", comment: "+str(len(comment))+", parName: "+str(len(parName))+", parVal: "+str(len(parVal))+", parComment: "+str(len(parComment)))
 
 # Debug print of port information
 if(debug): 
@@ -131,7 +141,18 @@ with io.open(saveDir,mode='w') as fout:
     fout.write("\n//----------- Begin Cut here for INSTANTIATION Template -------------// INST_TAG\n")
     
     # Instantiation Template
-    fout.write(modName+" your_instance_name (\n")
+    fout.write(modName+"#(\n")
+    itt = len(parName)
+    for i in range(itt):
+        if(i==itt-1):
+            fout.write("\t."+parName[i]+"("+parVal[i]+")")
+        else:
+            fout.write("\t."+parName[i]+"("+parVal[i]+"),")
+        if(parComment[i]):
+            fout.write("\t// "+parComment[i]+"\n")
+        else:
+            fout.write("\n")
+    fout.write(") your_instance_name (\n")
     itt = len(direction)
     for i in range(itt):
         if(direction[i]):

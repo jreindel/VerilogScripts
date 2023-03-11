@@ -54,6 +54,9 @@ if(debug):
     print("Port delcaration ends on line: ",modEnd+1)
 
 # Parse port declaration information from the file
+parName = []
+parVal = []
+parComment = []
 direction = []
 dataType = []
 size = []
@@ -63,11 +66,18 @@ for i in range(modStart,modEnd+1):
     comLine = line[i].split('//') # Split Comments
     comLine[0] = re.sub(' +',' ',comLine[0])
     curLine = re.split(", |,| ",comLine[0].strip()) # Divide port info
-    l = i-modStart
+#    l = i-modStart
     if(debug > 1): # verbose listing of divided line info
-        print(curLine)
+        print(str(i+1)+' '+str(curLine))
     if(curLine): # information on line besides comments
         for j in range(len(curLine)):
+            if(curLine[j]=="parameter"): # Locate parameter inputs
+                parName.append(curLine[1])
+                parVal.append(curLine[3])
+                if(len(comLine) > 1):
+                    parComment.append(comLine[1].strip())
+                else:
+                    parComment.append("")
             if(curLine[j]=="input" or curLine[j]=="output"): # Locate inputs and outputs to begin parsing
                 if(curLine[j+2][0] == "["): # multibit port
                     for k in range(3,len(curLine)-j):
@@ -105,7 +115,7 @@ for i in range(modStart,modEnd+1):
         
 # Verbose print of number of elements in each list
 if(debug >1): 
-    print("\ndirection: "+str(len(direction))+", dataType: "+str(len(dataType))+", size: "+str(len(size))+", varName: "+str(len(varName))+", comment: "+str(len(comment)))
+    print("\ndirection: "+str(len(direction))+", dataType: "+str(len(dataType))+", size: "+str(len(size))+", varName: "+str(len(varName))+", comment: "+str(len(comment))+", parName: "+str(len(parName))+", parVal: "+str(len(parVal))+",arComment: "+str(len(parComment)))
 
 # Debug print of port information
 if(debug): 
@@ -128,7 +138,7 @@ else:
 print("\nSaving to: ",saveDir)
     
 # Write file out
-with io.open(saveDir,mode='w') as fout:
+with io.open(saveDir,mode='w+') as fout:
     # Header
     fout.write("`timescale 1ns / 1ps\n")
     fout.write("//////////////////////////////////////////////////////////////////////////////////\n")
@@ -148,7 +158,18 @@ with io.open(saveDir,mode='w') as fout:
     fout.write("// Additional Comments:\n")
     fout.write("// \n")
     fout.write("//////////////////////////////////////////////////////////////////////////////////\n")
-    fout.write("module testbench_"+modName+"();\n\n")
+    fout.write("module testbench_"+modName+"#(\n")
+    itt = len(parName)
+    for i in range(itt):
+        if(i==itt-1):
+            fout.write("\tparameter "+parName[i]+" = "+parVal[i])
+        else:
+            fout.write("\tparameter "+parName[i]+" = "+parVal[i]+",")
+        if(parComment[i]):
+            fout.write("\t// "+parComment[i]+"\n")
+        else:
+            fout.write("\n")
+    fout.write(")();\n\n")
     # input ports
     fout.write("\t// inputs\n")
     for i in range(len(direction)): 
@@ -161,7 +182,18 @@ with io.open(saveDir,mode='w') as fout:
             fout.write("\twire "+str(size[i])+str(varName[i])+";\n")
     fout.write("\n\t// unit under test\n\t")
     # Instantiation Template
-    fout.write(modName+" uut (\n")
+    fout.write(modName+"#(\n")
+    itt = len(parName)
+    for i in range(itt):
+        if(i==itt-1):
+            fout.write("\t."+parName[i]+"("+parName[i]+")")
+        else:
+            fout.write("\t."+parName[i]+"("+parName[i]+"),")
+        if(parComment[i]):
+            fout.write("\t// "+parComment[i]+"\n")
+        else:
+            fout.write("\n")
+    fout.write(") uut (\n")
     itt = len(direction);
     for i in range(itt):
         if(direction[i]):
@@ -190,7 +222,7 @@ with io.open(saveDir,mode='w') as fout:
         if(direction[i]=="input"):
             fout.write("\t\t"+str(varName[i])+" = ")
             if(size[i]):
-                fout.write(str(int(size[i].split(":")[0].strip("["))+1)+"'b0;\n")
+                fout.write("'b0;\n")
             else:
                 fout.write("0;\n")
     fout.write("\t\t// Wait for clear to finish\n\t\t#100;\n")
