@@ -78,10 +78,10 @@ for i in range(modStart,modEnd+1):
                     parComment.append(comLine[1].strip())
                 else:
                     parComment.append("")
-            if(curLine[j]=="input" or curLine[j]=="output"): # Locate inputs and outputs to begin parsing
+            if(curLine[j]=="input" or curLine[j]=="output" or curLine[j]=="inout"): # Locate inputs and outputs to begin parsing
                 if(curLine[j+2][0] == "["): # multibit port
                     for k in range(3,len(curLine)-j):
-                        if(curLine[j+k]=="input" or curLine[j+k]=="output"):
+                        if(curLine[j+k]=="input" or curLine[j+k]=="output" or curLine[j+k]=="inout"):
                             break
                         if(curLine[j+k]):
                             direction.append(curLine[j])
@@ -95,7 +95,7 @@ for i in range(modStart,modEnd+1):
                         
                 else: # Single bit port
                     for k in range(2,len(curLine)-j):
-                        if(curLine[j+k]=="input" or curLine[j+k]=="output"):
+                        if(curLine[j+k]=="input" or curLine[j+k]=="output" or curLine[j+k]=="inout"):
                             break
                         if(curLine[j+k]):
                             direction.append(curLine[j])
@@ -180,6 +180,14 @@ with io.open(saveDir,mode='w+') as fout:
     for i in range(len(direction)):
         if(direction[i]=="output"):
             fout.write("\twire "+str(size[i])+str(varName[i])+";\n")
+    # inout ports
+    fout.write("\n\t//inouts\n")
+    for i in range(len(direction)):
+        if(direction[i]=="inout"):
+            fout.write("\ttri "+str(size[i])+str(varName[i])+";\n")
+            fout.write("\treg "+str(size[i])+str(varName[i])+"_out;\n")
+            fout.write("\tassign "+str(varName[i])+" = "+str(varName[i])+"_out;\n")
+
     fout.write("\n\t// unit under test\n\t")
     # Instantiation Template
     fout.write(modName+"#(\n")
@@ -222,9 +230,15 @@ with io.open(saveDir,mode='w+') as fout:
         if(direction[i]=="input"):
             fout.write("\t\t"+str(varName[i])+" = ")
             if(size[i]):
-                fout.write("'b0;\n")
+                fout.write("'h0;\n")
             else:
                 fout.write("0;\n")
+        elif(direction[i]=="inout"):
+            fout.write("\t\t"+str(varName[i])+"_out = ")
+            if(size[i]):
+                fout.write("'hz;\n")
+            else:
+                fout.write("z;\n")
     fout.write("\t\t// Wait for clear to finish\n\t\t#100;\n")
     fout.write("\n\t\t// Add stimulus here\n")
     fout.write("\t\t\n")

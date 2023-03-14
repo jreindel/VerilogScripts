@@ -79,10 +79,10 @@ for i in range(modStart,modEnd+1):
                     parComment.append(comLine[1].strip())
                 else:
                     parComment.append("")
-            if(curLine[j]=="input" or curLine[j]=="output"): # Locate inputs and outputs to begin parsing
+            if(curLine[j]=="input" or curLine[j]=="output" or curLine[j]=="inout"): # Locate inputs and outputs to begin parsing
                 if(curLine[j+2][0] == "["): # multibit port
                     for k in range(3,len(curLine)-j):
-                        if(curLine[j+k]=="input" or curLine[j+k]=="output"):
+                        if(curLine[j+k]=="input" or curLine[j+k]=="output" or curLine[j+k]=="inout"):
                             break
                         if(curLine[j+k]):
                             direction.append(curLine[j])
@@ -96,7 +96,7 @@ for i in range(modStart,modEnd+1):
                         
                 else: # Single bit port
                     for k in range(2,len(curLine)-j):
-                        if(curLine[j+k]=="input" or curLine[j+k]=="output"):
+                        if(curLine[j+k]=="input" or curLine[j+k]=="output" or curLine[j+k]=="inout"):
                             break
                         if(curLine[j+k]):
                             direction.append(curLine[j])
